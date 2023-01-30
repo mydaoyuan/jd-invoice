@@ -1,0 +1,8 @@
+/.idea
+/tmp
+/node_modules
+/dist
+/file
+cookies.json
+login.png
+.DS_Store
