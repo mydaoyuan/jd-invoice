@@ -30,7 +30,7 @@ let browser
 let page
 
 async function init() {
-  await ensureDirectoryExists(path.resolve(process.cwd(), '../file'))
+  await ensureDirectoryExists(path.resolve(process.cwd(), './file'))
   browser = await puppeteer.launch({
     headless: false,
     defaultViewport: {
@@ -237,7 +237,7 @@ async function download(url) {
   if (url.indexOf('orderId') > 0) {
     // 通过当前链接 的 orderId 来命名发票 名称 TODO 优化命名
     const { query } = queryString.parseUrl(url)
-    const invoicePath = `../file/${query.orderId}.pdf`
+    const invoicePath = `./file/${query.orderId}.pdf`
     const filename = path.resolve(process.cwd(), invoicePath)
     const popupPage = await browser.newPage()
     await popupPage.goto(url)

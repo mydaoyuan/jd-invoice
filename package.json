@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon --exec babel-node ./src/index.js",
-    "build": "babel src --out-dir dist && pkg ./dist/index.js"
+    "build": "babel src --out-dir dist && pkg ./dist/index.js --public --out-path=dist"
   },
   "dependencies": {
     "puppeteer": "^19.6.1",

@@ -34,7 +34,7 @@ export async function saveCookie(page) {
 }
 
 export function existsInvoice(orderId) {
-  const invoicePath = `../file/${orderId}.pdf`
+  const invoicePath = `./file/${orderId}.pdf`
   const filename = path.resolve(process.cwd(), invoicePath)
   if (fs.existsSync(filename)) {
     // 如果发票 已经存在，就不需要重复下载
