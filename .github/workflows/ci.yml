@@ -1,0 +1,26 @@
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout code
+       uses: actions/checkout@v3
+     - name: Checkout node
+       uses: actions/setup-node@v3
+       with:
+          node-version: 14.x
+    - name: Build
+      - run: npm ci && npm run build
+    - name: Release
+      uses: actions/upload-artifact@v3
+      with:
+        name: index-macos
+        path: index-macos
