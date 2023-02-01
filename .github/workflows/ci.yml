@@ -1,8 +1,5 @@
 name: Build and Release Node.js Project
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 on:
   push:
     branches:
@@ -13,10 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get version from package.json
-        id: get-version
-        run: echo "PACKAGE_VERSION=$(cat package.json | jq -r .version)" >> "$GITHUB_ENV"
-
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -25,6 +18,10 @@ jobs:
         with:
           node-version: 14.x
 
+      - name: Get version from package.json
+        id: get-version
+        run: echo "PACKAGE_VERSION=$(cat package.json | jq -r .version)" >> "$GITHUB_ENV"
+
       - name: Install dependencies and build
         run: npm ci && npm run build
 
@@ -32,18 +29,14 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: index-macos
-          path: index-macos
-
-      - name: Set PACKAGE_VERSION
-        run: echo "::set-env name=PACKAGE_VERSION::$(cat package.json | jq -r .version)"
+          path: dist/index-macos
 
       - name: Create a release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.AUTOCI }}
+        uses: 'marvinpinto/action-automatic-releases@latest'
         with:
-          tag_name: ${{ env.PACKAGE_VERSION }}
-          release_name: Release of ${{ env.PACKAGE_VERSION }}
-          draft: false
-          prerelease: false
-          artifact_paths: index-macos
+          repo_token: '${{ secrets.AUTOCI }}'
+          automatic_release_tag: '${{ env.TAG_NAME }}'
+          prerelease: true
+          title: 'Development Build'
+          files: |
+            dist/index-macos
