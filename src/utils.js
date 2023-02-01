@@ -17,7 +17,7 @@ export async function restTime() {
 
 export async function setCookie(page) {
   const cookies = JSON.parse(
-    fs.readFileSync(path.resolve(__dirname, './cookies.json'), 'utf-8')
+    fs.readFileSync(path.resolve(process.cwd(), './cookies.json'), 'utf-8')
   )
   for (const cookie of cookies) {
     await page.setCookie(cookie)
@@ -28,14 +28,14 @@ export async function saveCookie(page) {
   const cookies = await page.cookies()
 
   fs.writeFileSync(
-    path.resolve(__dirname, './cookies.json'),
+    path.resolve(process.cwd(), './cookies.json'),
     JSON.stringify(cookies)
   )
 }
 
 export function existsInvoice(orderId) {
   const invoicePath = `../file/${orderId}.pdf`
-  const filename = path.resolve(__dirname, invoicePath)
+  const filename = path.resolve(process.cwd(), invoicePath)
   if (fs.existsSync(filename)) {
     // 如果发票 已经存在，就不需要重复下载
     console.log(` ✅ 发票  ${orderId} 已经存在,跳过下载`)
