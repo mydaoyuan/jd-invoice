@@ -1,7 +1,8 @@
 import path from 'path'
 import fs from 'fs'
 import https from 'https'
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
+// import puppeteer from 'puppeteer-core'
 import { spawn } from 'child_process'
 import queryString from 'query-string'
 import config from './config'
@@ -32,14 +33,14 @@ let page
 async function init() {
   await ensureDirectoryExists(path.resolve(process.cwd(), './file'))
   browser = await puppeteer.launch({
-    headless: false,
+    // headless: false,
     defaultViewport: {
       width: 1440,
       height: 800,
     },
     // executablePath: chromiumExecutablePath,
     // executablePath: puppeteer.executablePath(),
-    executablePath: getDefaultOsPath(),
+    // executablePath: getDefaultOsPath(),
   })
   page = await browser.newPage()
   if (fs.existsSync(path.resolve(process.cwd(), './cookies.json'))) {
