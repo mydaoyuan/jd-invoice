@@ -33,8 +33,10 @@ jobs:
 
       - name: Create a release
         uses: 'marvinpinto/action-automatic-releases@latest'
+        env:
+          TAG_NAME: ${{ env.PACKAGE_VERSION }}
         with:
-          repo_token: '${{ secrets.AUTOCI }}'
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: '${{ env.TAG_NAME }}'
           prerelease: true
           title: 'Development Build'
