@@ -2,7 +2,6 @@ import path from 'path'
 import fs from 'fs'
 import https from 'https'
 import puppeteer from 'puppeteer'
-// import puppeteer from 'puppeteer-core'
 import { spawn } from 'child_process'
 import queryString from 'query-string'
 import config from './config'
@@ -11,46 +10,37 @@ import {
   restTime,
   setCookie,
   saveCookie,
+  cookiePath,
   existsInvoice,
   ensureDirectoryExists,
 } from './utils'
 
 // 发票列表页
 const targetUrl = 'https://myivc.jd.com/fpzz/index.action'
-const getDefaultOsPath = () => {
-  if (process.platform === 'win32') {
-    return 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
-  } else {
-    return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-  }
-}
-
-let pageNum = config.pageNum
 const maxPageNo = config.maxPageNo
+let pageNum = config.pageNum
 let browser
 let page
 
 async function init() {
-  await ensureDirectoryExists(path.resolve(process.cwd(), './file'))
+  await ensureDirectoryExists(path.resolve(__dirname, './file'))
   browser = await puppeteer.launch({
     // headless: false,
     defaultViewport: {
       width: 1440,
       height: 800,
     },
-    // executablePath: chromiumExecutablePath,
-    // executablePath: puppeteer.executablePath(),
-    // executablePath: getDefaultOsPath(),
   })
   page = await browser.newPage()
-  if (fs.existsSync(path.resolve(process.cwd(), './cookies.json'))) {
+  if (fs.existsSync(cookiePath)) {
+    console.log('cookie is have')
     await setCookie(page)
   }
 }
 async function start() {
   await init()
 
-  console.log(` 💾 发票保存路径 ${path.resolve(process.cwd())}/file`)
+  console.log(` 💾 发票保存路径 ${path.resolve(__dirname)}/file`)
 
   await page.goto(targetUrl)
   let currentURL = await page.url()
@@ -64,8 +54,7 @@ async function start() {
   }
   // 登录处理
   console.log(' ✅ 登录成功')
-  if (!fs.existsSync(path.resolve(process.cwd(), './cookies.json')))
-    await saveCookie(page)
+  if (fs.existsSync(cookiePath)) await saveCookie(page)
   if (pageNum > 1) {
     await jumpPage(pageNum)
   }
@@ -239,7 +228,7 @@ async function download(url) {
     // 通过当前链接 的 orderId 来命名发票 名称 TODO 优化命名
     const { query } = queryString.parseUrl(url)
     const invoicePath = `./file/${query.orderId}.pdf`
-    const filename = path.resolve(process.cwd(), invoicePath)
+    const filename = path.resolve(__dirname, invoicePath)
     const popupPage = await browser.newPage()
     await popupPage.goto(url)
     try {

@@ -3,6 +3,7 @@
 /node_modules
 /dist
 /file
+/src//file
 cookies.json
 login.png
 .DS_Store

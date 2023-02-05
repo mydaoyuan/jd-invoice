@@ -4,6 +4,8 @@ import util from 'util'
 
 const stat = util.promisify(fs.stat)
 const mkdir = util.promisify(fs.mkdir)
+export const cookiePath = path.resolve(__dirname, './cookies.json')
+
 /**
  * @param int ms
  * @returns {Promise<any>}
@@ -16,9 +18,7 @@ export async function restTime() {
 }
 
 export async function setCookie(page) {
-  const cookies = JSON.parse(
-    fs.readFileSync(path.resolve(process.cwd(), './cookies.json'), 'utf-8')
-  )
+  const cookies = JSON.parse(fs.readFileSync(cookiePath, 'utf-8'))
   for (const cookie of cookies) {
     await page.setCookie(cookie)
   }
@@ -27,15 +27,12 @@ export async function setCookie(page) {
 export async function saveCookie(page) {
   const cookies = await page.cookies()
 
-  fs.writeFileSync(
-    path.resolve(process.cwd(), './cookies.json'),
-    JSON.stringify(cookies)
-  )
+  fs.writeFileSync(cookiePath, JSON.stringify(cookies))
 }
 
 export function existsInvoice(orderId) {
   const invoicePath = `./file/${orderId}.pdf`
-  const filename = path.resolve(process.cwd(), invoicePath)
+  const filename = path.resolve(__dirname, invoicePath)
   if (fs.existsSync(filename)) {
     // 如果发票 已经存在，就不需要重复下载
     console.log(` ✅ 发票  ${orderId} 已经存在,跳过下载`)
