@@ -1,4 +1,4 @@
-<h1><center>京东发票自动下载</center></h1>
+<h1 align="center">京东发票自动下载</h1>
 
 ![图片](./screenshot.png)
 
