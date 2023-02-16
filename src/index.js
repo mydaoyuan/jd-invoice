@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import https from 'https'
 import puppeteer from 'puppeteer'
-import { spawn } from 'child_process'
+import { exec } from 'child_process'
 import queryString from 'query-string'
 import config from './config'
 import {
@@ -272,12 +272,32 @@ async function login() {
       const buffer = await response.buffer()
       const filePath = './login.png'
       fs.writeFileSync(filePath, buffer)
-      spawn('open', [filePath])
+      openImage(filePath)
     }
   })
   await page.reload({
     waitUntil: 'networkidle0',
   })
+}
+
+function openImage(imagePath) {
+  switch (process.platform) {
+    case 'darwin':
+      exec(`open ${imagePath}`)
+      break
+    case 'win32':
+      exec(`start ${imagePath}`)
+      break
+    case 'linux':
+      if (process.env['XDG_CURRENT_DESKTOP'] === 'GNOME') {
+        exec(`gnome-open ${imagePath}`)
+      } else {
+        exec(`xdg-open ${imagePath}`)
+      }
+      break
+    default:
+      throw new Error(`Unsupported platform: ${process.platform}`)
+  }
 }
 
 start()
