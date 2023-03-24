@@ -4,9 +4,8 @@
     ".vscode/**/*",
     "dist/**/*",
     "test/**/*",
-    "logs/**/*",
-    "src/**/*"
+    "logs/**/*"
   ],
-  "watch": ["src/cookies.json"],
+  "watch": ["src/index.js", "src/utils.js"],
   "exec": "babel-node ./src/index.js"
 }
