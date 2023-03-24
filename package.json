@@ -4,7 +4,7 @@
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon --exec babel-node ./src/index.js",
+    "start": "nodemon",
     "build": "babel src --out-dir dist && pkg ./dist/index.js --public --out-path=dist"
   },
   "dependencies": {
