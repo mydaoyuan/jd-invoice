@@ -46,7 +46,9 @@ async function start() {
   let currentURL = await page.url()
   if (currentURL !== targetUrl) {
     console.log(' ❌ 未登录, 需要登录')
+    // 页面点击 .login-tab.login-tab-l 元素
     await login()
+    await page.click('.login-tab.login-tab-l')
   }
   while (currentURL !== targetUrl) {
     currentURL = await page.url()
@@ -227,11 +229,27 @@ async function download(url) {
   if (url.indexOf('orderId') > 0) {
     // 通过当前链接 的 orderId 来命名发票 名称 TODO 优化命名
     const { query } = queryString.parseUrl(url)
-    const invoicePath = `./file/${query.orderId}.pdf`
-    const filename = path.resolve(__dirname, invoicePath)
     const popupPage = await browser.newPage()
     await popupPage.goto(url)
     try {
+      await sleep(1000)
+      const invoiceTitle = await popupPage.evaluate(() => {
+        // 找到包含 "发票抬头" 文本的 span 元素
+        const labelSpan = Array.from(
+          document.querySelectorAll('td.label span')
+        ).find((span) => span.textContent.includes('发票抬头'))
+
+        // 获取父级 td 元素
+        const labelTd = labelSpan.parentNode
+
+        // 获取相邻的 td 元素
+        const valueTd = labelTd.nextElementSibling
+
+        // 返回相邻 td 元素中的文本
+        return valueTd.textContent.trim()
+      })
+      const invoicePath = `./file/${invoiceTitle}-${query.orderId}.pdf`
+      const filename = path.resolve(__dirname, invoicePath)
       await popupPage.waitForSelector('.download-trigger', {
         timeout: 2000,
       })
@@ -253,6 +271,7 @@ async function download(url) {
       console.log(
         ` ❌ ${query.orderId} 下载发票失败, 或许是退货订单, 请手动下载.`
       )
+      console.log(e)
     }
 
     await popupPage.close()
