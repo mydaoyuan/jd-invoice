@@ -169,30 +169,49 @@ async function downInvoice(item) {
 }
 
 /**
- *
  * @param {发票详情地址} url
  * @returns 是否需要进行换开发票
  */
 async function needChangeSubject(url) {
   const popupPage = await browser.newPage()
-  await popupPage.goto(url)
-  // 获取当前发票抬头	 个人/企业
-  const query =
-    '.invoice-detail .tb-void:nth-child(2) tr:nth-child(3) td:nth-child(2)'
-  await popupPage.waitForSelector(query)
+  await popupPage.goto(url, { waitUntil: 'domcontentloaded' }) // 优化等待策略
 
-  const text = await popupPage.evaluate(
-    () =>
-      document.querySelector(
-        '.invoice-detail .tb-void:nth-child(2) tr:nth-child(3) td:nth-child(2)'
-      ).innerText
-  )
-  // 进行换开
-  if (text === '个人') {
-    popupPage.close()
-    return true
+  try {
+    // 等待表格加载
+    await popupPage.waitForSelector('.invoice-detail .tb-void')
+
+    // 遍历表格找到"发票抬头"对应的值
+    const currentTitle = await popupPage.evaluate(() => {
+      // 找到所有的 label 单元格
+      const labels = Array.from(document.querySelectorAll('.invoice-detail .tb-void td.label'));
+      // 找到包含 "发票抬头" 文字的那个 label
+      const targetLabel = labels.find(el => el.innerText.includes('发票抬头'));
+      
+      if (targetLabel && targetLabel.nextElementSibling) {
+        // 返回它下一个兄弟节点（即内容节点）的文本
+        return targetLabel.nextElementSibling.innerText.trim();
+      }
+      return null;
+    });
+
+    console.log(` 🔎 当前发票抬头: "${currentTitle}"`);
+
+    // 如果没有找到抬头，或者当前抬头 与 配置的目标抬头 不一致，则需要换开
+    if (currentTitle && currentTitle !== config.companyName) {
+      console.log(` ⚠️ 抬头不匹配 (当前: ${currentTitle} vs 目标: ${config.companyName})，准备换开...`);
+      await popupPage.close();
+      return true;
+    }
+
+    console.log(' ✅ 抬头已匹配，无需换开');
+    await popupPage.close();
+    return false;
+
+  } catch (error) {
+    console.log(' ❌ 检测发票抬头失败:', error);
+    await popupPage.close();
+    return false;
   }
-  popupPage.close()
 }
 
 async function changeInvoice(popupPage) {
